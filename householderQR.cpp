@@ -1,9 +1,33 @@
 #include <cmath>
 #include <stdlib.h>
 #include <stdio.h>
-//#include <iostream>
 #include "../linearalgebra.h"
 
+/* ----------------------- householder ----------------------- */
+/*  Given a matrix A of dimension m by n (with n <= m) and 
+    arrays v_i of dimension m-i, for i = 1, ..., m - 1, 
+    respectively, this algorithm computes n reflection vectors
+    and the factor R of a full QR decomposition of A, where R 
+    is a m by n upper triangular matrix. The n reflection 
+    vectors are stored in the arrays v_1, ..., v_n and the 
+    columns of A are overwritten by the columns of R.
+    
+    Input variables:
+        a: pointer to array of arrays, the ith array of
+            which should correspond to the ith column of the 
+            matrix A. During the algorithm, the columns of R 
+            will overwrite the columns of A.
+        v: pointer to array of arrays in which the ith 
+            reflection vector of dimension m - i will be 
+            stored.
+        m: number of rows of A.
+        n: number of columns of A.
+
+    Features: The number of flops for this implementation is
+    ~ 2 * m * n^2 - (2/3) * n^3 and requires O(1) additional 
+    memory. 
+
+    Remarks:                         */
 
 void householder (double ** a, double ** v, int m, int n) {
     int i, j;
