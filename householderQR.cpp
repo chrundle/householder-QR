@@ -33,7 +33,7 @@ void householder (double ** a, double ** v, int m, int n) {
 
     for(i = 0; i < n; i++) {
         /* set v[i] equal to subvector a[i][i : m] */
-        subvec_copy(a[i], v[i], m - i, i);
+        partialvec_copy(a[i], v[i], m - i, i);
 
         /* vpartdot = ||v[i]||^2 - v[i][0] * v[i][0]; since vpartdot 
            is unaffected by the change in v[i][0], storing this value 
@@ -51,13 +51,13 @@ void householder (double ** a, double ** v, int m, int n) {
 
         /* normalize v[i] */
         vnorm = sqrt(v[i][0] * v[i][0] + vpartdot);
-        scalar_mult(v[i], vnorm, m - i, v[i]);
+        scalar_div(v[i], vnorm, m - i, v[i]);
     
         for(j = i; j < n; j++) {
             /* set a[j][i:m] = a[j][i:m] - 2 * (v[i]^T a[j][i:m]) * v[i] */
             vTa = subdot_product(a[j], v[i], m - i, i);
             vTa *= 2;
-            subscalar_sub(v[i], vTa, m - i, i, a[j]);
+            partialscalar_sub(v[i], vTa, m - i, i, a[j]);
         }
     }
 }
@@ -117,7 +117,6 @@ int main () {
     printf("R = \n");
     for(i = 0; i < m; i++) {
         for(j = 0; j < n; j++) {
-
             printf("%9.6g ", a[j][i]);
         }
         printf("\n");
