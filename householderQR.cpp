@@ -25,28 +25,32 @@
 
     Features: The number of flops for this implementation is
     ~ 2 * m * n^2 - (2/3) * n^3 and requires O(1) additional 
-    memory. 
-
-    Remarks:                         */
+    memory.                                                    */
 
 void householder (double ** a, double ** v, int m, int n) {
     int i, j;
-    double vnorm, vTa;
+    double vnorm, vTa, vpartdot;
 
     for(i = 0; i < n; i++) {
         /* set v[i] equal to subvector a[i][i : m] */
         subvec_copy(a[i], v[i], m - i, i);
 
+        /* vpartdot = ||v[i]||^2 - v[i][0] * v[i][0]; since vpartdot 
+           is unaffected by the change in v[i][0], storing this value 
+           prevents the need to recalculate the entire norm of v[i] 
+           after updating v[i][0] in the following step              */
+        vpartdot = partialdot_product(v[i], v[i], m - i, 1);
+
         /* set v[i][0] = v[i][0] + sign(v[i][0]) * ||v[i]|| */
         if(v[i][0] < 0) {
-            v[i][0] -= norm(v[i], m - i);
+            v[i][0] -= sqrt(v[i][0] * v[i][0] + vpartdot);
         }
         else {
-            v[i][0] += norm(v[i], m - i);
+            v[i][0] += sqrt(v[i][0] * v[i][0] + vpartdot);
         }
 
         /* normalize v[i] */
-        vnorm = norm(v[i], m - i);
+        vnorm = sqrt(v[i][0] * v[i][0] + vpartdot);
         scalar_mult(v[i], vnorm, m - i, v[i]);
     
         for(j = i; j < n; j++) {
@@ -71,8 +75,8 @@ int main () {
 
     /* check if m < n */
     if(m < n) {
-        printf("For a successful factorization, we require n <= m. "
-               "Terminating program.\n");
+        printf("For a successful factorization, this implementation "
+               "requires n <= m.\nTerminating program.\n");
         return 0;
     }
 
@@ -133,10 +137,17 @@ int main () {
     /* print numerical evidence that v's are normalized */
     printf("Numerical verification that v_1, ..., v_%i are "
            "normalized:\n", n);
-    for(i = 0; i < n; i++) {
-        x = dot_product(v[i], v[i], m - i);
-        printf("v_%i * v_%i = %lg\n", i + 1, i + 1, x);
+    for(i = 1; i < n; i++) {
+        x = dot_product(v[i - 1], v[i - 1], m - i + 1);
+        printf("||v[%i]|| = %lg, ", i, x);
+        if(i % 5 == 0) {
+            printf("\n");
+        }
     }
+    x = dot_product(v[n - 1], v[n - 1], m - n + 1);
+        printf("||v[%i]|| = %lg.", n, x);
+    if(n % 5 != 0) printf("\n");
+    printf("\n");
 
     /* free memory */
     for(i = 0; i < n; i++) {
