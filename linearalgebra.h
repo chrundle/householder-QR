@@ -280,9 +280,13 @@ double partialdot_product (double * x, double * y, int length, int index) {
     int i, length5;
     double sum = 0;
 
+    length -= index;
+    x += index;
+    y += index;
+
     length5 = length % 5;
 
-    for(i = index; i < length5; i++) {
+    for(i = 0; i < length5; i++) {
         sum += x[i] * y[i];
     }
     for(; i < length; i += 5) {
